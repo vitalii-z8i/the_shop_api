@@ -15,6 +15,7 @@ module TheShop
         end
 
         mount TheShop::API::V1::Categories
+        mount TheShop::API::V1::Products
       end
     end
   end
