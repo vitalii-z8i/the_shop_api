@@ -6,7 +6,7 @@ module TheShop
           desc "Return list of categories"
           get do
             {
-              error: "Not Implemented"
+              categories: ::Category.map(&:as_short_json)
             }
           end
 
