@@ -12,7 +12,5 @@ module TheShop
         versions: ['V1']
       }
     end
-
-    mount API::V1
   end
 end
