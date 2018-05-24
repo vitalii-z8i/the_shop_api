@@ -1,7 +1,6 @@
+require './app/api/base'
 module TheShop
-  class API < Grape::API
-    version 'v1', using: :header, vendor: 'the_shop'
-
+  class App < Grape::API
     format :json
     prefix :api
 
@@ -12,5 +11,7 @@ module TheShop
         versions: ['V1']
       }
     end
+
+    mount API::Base
   end
 end
