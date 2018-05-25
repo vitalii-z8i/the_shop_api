@@ -11,6 +11,11 @@ module TheShop
           end
 
           desc "Create new category"
+          params do
+            requires :category, type: Hash do
+              requires :name, type: String
+            end
+          end
           post do
             status 501
             {
