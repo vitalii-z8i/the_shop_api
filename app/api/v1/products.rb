@@ -6,7 +6,8 @@ module TheShop
           route_param :category_id, type: Integer do
             desc "Return list of products for category"
             get :products do
-              ::Product.where(category_id: params[:category_id]).map(&:to_hash)
+              category = ::Category.first!(id: params[:category_id])
+                                   .products.map(&:to_hash)
             end
           end
         end
@@ -21,7 +22,8 @@ module TheShop
             end
           end
           post do
-            product = ::Product.create(params[:product])
+            product_params = declared(params, include_missing: false)[:product]
+            product = ::Product.create(product_params)
             product.to_hash
           end
 
@@ -42,10 +44,9 @@ module TheShop
           route_param :id, type: Integer do
             desc 'Return a product'
             get do
-              status 501
-              {
-                error: "Not Implemented"
-              }
+              Product.where(id: params[:id]).update(views_count: (Sequel.expr(1) + :views_count))
+              product = ::Product.first!(id: params[:id])
+              product.to_hash
             end
 
             desc 'Update a product'    
@@ -57,22 +58,16 @@ module TheShop
               end
             end        
             patch do
-              product = ::Product.first(id: params[:id]).update(params[:product])
+              product_params = declared(params, include_missing: false)[:product]
+              product = ::Product.first!(id: params[:id])
+              product.update(product_params)
               product.to_hash
             end
 
             desc 'Delete a product'            
             delete do
-              product = ::Product.first(id: params[:id])
-              if product.respond_to?(:delete)
-                product.delete
-                product.to_hash
-              else
-                status 404
-                {
-                  error: 'Not found'
-                }
-              end
+              product = ::Product.first!(id: params[:id]).delete
+              product.to_hash
             end
 
             desc 'Purchase a product'            

@@ -17,7 +17,8 @@ module TheShop
             end
           end
           post do
-            cat = ::Category.create(params[:category])
+            category_params = declared(params, include_missing: false)[:category]
+            cat = ::Category.create(category_params)
             cat.to_hash
           end
 
@@ -29,29 +30,17 @@ module TheShop
               end
             end
             patch do
-              cat = ::Category.first(id: params[:id])
-              unless cat.present?
-                status 404
-                return {
-                  error: 'Not found'
-                }
-              end
-              cat.update(params[:category])
+              category_params = declared(params, include_missing: false)[:category]
+              cat = ::Category.first!(id: params[:id])
+              
+              cat.update(category_params)
               cat.to_hash
             end
 
             desc "Delete a category"
             delete do
-              cat = ::Category.first(id: params[:id])
-              if cat.respond_to?(:delete)
-                cat.delete
-                cat.to_hash
-              else
-                status 404
-                {
-                  error: 'Not found'
-                }
-              end
+              cat = ::Category.first!(id: params[:id]).delete
+              cat.to_hash
             end
           end
 
