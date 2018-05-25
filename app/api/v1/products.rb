@@ -6,17 +6,23 @@ module TheShop
           route_param :category_id, type: Integer do
             desc "Return list of products for category"
             get :products do
-              status 501
-              {
-                error: "Not Implemented"
-              }
+              ::Product.where(category_id: params[:category_id]).map(&:to_hash)
             end
           end
         end
 
         resource :products do
           desc 'Create a product'
+          params do
+            requires :product, type: Hash do
+              requires :name, type: String
+              requires :category_id, type: Integer
+              requires :price, type: Float
+            end
+          end
           post do
+            product = ::Product.create(params[:product])
+            product.to_hash
           end
 
           get :popular do
@@ -42,20 +48,31 @@ module TheShop
               }
             end
 
-            desc 'Update a product'            
+            desc 'Update a product'    
+            params do
+              requires :product, type: Hash do
+                requires :name, type: String
+                requires :category_id, type: Integer
+                requires :price, type: Float
+              end
+            end        
             patch do
-              status 501
-              {
-                error: "Implemented"
-              }
+              product = ::Product.first(id: params[:id]).update(params[:product])
+              product.to_hash
             end
 
             desc 'Delete a product'            
             delete do
-              status 501
-              {
-                error: 'Not Implemented'
-              }
+              product = ::Product.first(id: params[:id])
+              if product.respond_to?(:delete)
+                product.delete
+                product.to_hash
+              else
+                status 404
+                {
+                  error: 'Not found'
+                }
+              end
             end
 
             desc 'Purchase a product'            

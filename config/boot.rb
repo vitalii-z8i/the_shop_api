@@ -4,7 +4,8 @@ require 'sequel'
 
 db_config = YAML.load_file('./config/database.yml')
 DB = Sequel.connect(db_config)
-Sequel::Model.plugin :timestamps
+Sequel::Model.plugin :timestamps, create: :created_at, update: :updated_at, update_on_create: true
+
 Sequel.extension :migration
 Sequel::Migrator.run(DB, './db/migrate', use_transactions: true)
 
