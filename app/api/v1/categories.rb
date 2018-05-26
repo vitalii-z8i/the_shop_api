@@ -31,10 +31,10 @@ module TheShop
             end
             patch do
               category_params = declared(params, include_missing: false)[:category]
-              cat = ::Category.first!(id: params[:id])
-              
-              cat.update(category_params)
-              cat.to_hash
+              category = ::Category.first!(id: params[:id])
+
+              category.update(category_params)
+              category.to_hash
             end
 
             desc "Delete a category"
@@ -46,10 +46,7 @@ module TheShop
 
           desc "Return categories list by popularity of their products"
           get :popular do
-            status 501
-            {
-              error: "Not Implemented"
-            }
+            ::Category.fetch_popular.map(&:to_hash)
           end
 
           #NOTE: Action is not required. It's here just for routing example

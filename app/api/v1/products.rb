@@ -28,17 +28,7 @@ module TheShop
           end
 
           get :popular do
-            status 501
-            {
-              error: "Not Implemented"
-            }
-          end
-
-          get :hottest do
-            status 501
-            {
-              error: "Not Implemented"
-            }
+            Product.limit(25).fetch_popular.map(&:to_hash)
           end
 
           route_param :id, type: Integer do
@@ -56,7 +46,7 @@ module TheShop
                 requires :category_id, type: Integer
                 requires :price, type: Float
               end
-            end        
+            end
             patch do
               product_params = declared(params, include_missing: false)[:product]
               product = ::Product.first!(id: params[:id])
@@ -72,10 +62,15 @@ module TheShop
 
             desc 'Purchase a product'            
             post :purchase do
-              status 501
-              {
-                error: 'Not Implemented'
-              }
+              updated_count = Product.where(id: params[:id]).update(purchases_count: (Sequel.expr(1) + :purchases_count))
+              raise Sequel::NoMatchingRow unless updated_count > 0
+              updated_count
+            end
+
+            post :track_view do
+              updated_count = Product.where(id: params[:id]).update(views_count: (Sequel.expr(1) + :views_count))
+              raise Sequel::NoMatchingRow unless updated_count > 0
+              updated_count
             end
           end
         end
