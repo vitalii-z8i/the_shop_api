@@ -2,11 +2,16 @@ class Category < Sequel::Model
   include Models::JsonExt
   short_json_attributes :id, :name, :products_count
 
+  one_to_many :products
+
   dataset_module do
     def fetch_popular
-      select_append(Sequel.function(:sum, Sequel.qualify(:products, :purchase_count)))
-      .join(Product.with_purchase_rate.viewed_by_people, category_id: :id)
-      .order(Sequel.function(:sum, Sequel.qualify(:products, :purchase_count)).desc)
+      total_purchases = Sequel.function(:sum, Sequel.qualify(:products, :purchases_count))
+
+      self.association_join(:products)
+      .select_group(Sequel.qualify(:categories, :id))
+      .select(Sequel[:categories].*, Sequel.as(total_purchases, :total_purchases))
+      .order(Sequel.desc(:total_purchases))
     end
   end
   one_to_many :products
