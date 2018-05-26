@@ -20,7 +20,11 @@ module TheShop
 
 
         get do
-          return_404
+          {
+            name: 'The Shop API',
+            version: 'v1',
+            created: Time.parse('2018-05-24 00:00')
+          }
         end
 
         mount TheShop::API::V1::Categories
